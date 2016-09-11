@@ -21,10 +21,18 @@
   <ItemGroup>
     <ClInclude Include="include\AssImpPlugin.h" />
     <ClInclude Include="include\AssImpPluginPrerequisites.h" />
+    <ClInclude Include="include\XmlMeshSerializer.h" />
+    <ClInclude Include="include\XML\tinystr.h" />
+    <ClInclude Include="include\XML\tinyxml.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AssImpPlugin.cpp" />
     <ClCompile Include="src\AssImpPluginDll.cpp" />
+    <ClCompile Include="src\XmlMeshSerializer.cpp" />
+    <ClCompile Include="src\XML\tinystr.cpp" />
+    <ClCompile Include="src\XML\tinyxml.cpp" />
+    <ClCompile Include="src\XML\tinyxmlerror.cpp" />
+    <ClCompile Include="src\XML\tinyxmlparser.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BF5C4041-929A-4BEC-8AE3-CFCE487BBE37}</ProjectGuid>
@@ -98,7 +106,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include;..\..\Projects\ogre2.1\VCBuild\include;..\..\Projects\ogre2.1\OgreMain\include;..\..\Projects\HLMSEditor\source\header;..\..\Projects\assimp\code;..\..\Projects\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include\XML;..\..\Projects\ogre2.1\VCBuild\include;..\..\Projects\ogre2.1\OgreMain\include;..\..\Projects\HLMSEditor\source\header;..\..\Projects\assimp\code;..\..\Projects\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TIXML_USE_STL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>..\..\Projects\ogre2.1\VCBuild\lib\Debug\OgreMain_d.lib;..\..\Projects\assimp\VCBuild\code\Debug\assimp-vc140-mt_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -128,7 +137,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>include;..\..\Projects\ogre2.1\VCBuild\include;..\..\Projects\ogre2.1\OgreMain\include;..\..\Projects\HLMSEditor\source\header;..\..\Projects\assimp\code;..\..\Projects\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include\XML;..\..\Projects\ogre2.1\VCBuild\include;..\..\Projects\ogre2.1\OgreMain\include;..\..\Projects\ogre2.1\Tools\MeshTool\include;..\..\Projects\HLMSEditor\source\header;..\..\Projects\assimp\code;..\..\Projects\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TIXML_USE_STL; _WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

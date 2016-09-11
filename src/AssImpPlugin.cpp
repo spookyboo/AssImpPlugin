@@ -27,20 +27,25 @@ Copyright (c) 2000-2014 Torus Knot Software Ltd
 */
 
 #include "OgreRoot.h"
+#include "OgreTimer.h"
 #include "AssImpPlugin.h"
 #include "OgreLogManager.h"
+#include "OgreMeshManager.h"
+#include "OgreMeshManager2.h"
+#include "OgreMesh2.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include "XmlMeshSerializer.h"
 
 namespace Ogre
 {
-	static const String gImportMenuText = "Import a non-Ogre model";
+	static const String gImportMenuText = "Import 3D models";
 	static const String gExportMenuText = "";
 	//---------------------------------------------------------------------
 	AssImpPlugin::AssImpPlugin()
     {
     }
-    //---------------------------------------------------------------------
+	//---------------------------------------------------------------------
     const String& AssImpPlugin::getName() const
     {
         return GENERAL_HLMS_PLUGIN_NAME;
@@ -127,22 +132,49 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	bool AssImpPlugin::executeImport (HlmsEditorPluginData* data)
 	{
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(data->mInFileDialogName,
-			aiProcessPreset_TargetRealtime_Quality |
-			aiProcess_TransformUVCoords |
-			aiProcess_FlipUVs);
-
-		if (!scene)
+		bool fileIsOgreMeshXml = false;
+		std::string::size_type idx = data->mInFileDialogName.rfind('.');
+		if (idx != std::string::npos)
 		{
-			data->mOutErrorText = "Could not import " + data->mInFileDialogName;
-			LogManager::getSingleton().logMessage(importer.GetErrorString());
-			return false;
+			Ogre::String extension = data->mInFileDialogName.substr(idx + 1);
+			fileIsOgreMeshXml = (extension == "xml");
 		}
 
-		if (!parseScene(scene, data))
+		String xmlFileName = data->mInFileDialogPath + data->mInFileDialogName;
+		if (fileIsOgreMeshXml)
 		{
-			return false;
+			// It is an Ogre mesh xml file?
+			XmlSerializer xmlSerializer;
+			if (!xmlSerializer.importOgreMeshXml(xmlFileName, data))
+				return false;
+
+			String meshFileName = data->mInImportPath + data->mInFileDialogBaseName + ".mesh";
+			xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName);
+			data->mOutExportReference = meshFileName;
+			return true;
+		}
+		else
+		{
+			// It is not an Ogre mesh xml, so let assimp do the work
+			Assimp::Importer importer;
+			String name = data->mInFileDialogPath + data->mInFileDialogName;
+			const aiScene* scene = importer.ReadFile(name,
+				aiProcessPreset_TargetRealtime_Quality |
+				aiProcess_TransformUVCoords |
+				aiProcess_FlipUVs);
+
+			if (!scene)
+			{
+				data->mOutErrorText = "Could not import " + data->mInFileDialogName;
+				LogManager::getSingleton().logMessage(importer.GetErrorString());
+				return false;
+			}
+
+
+			if (!parseScene(scene, data))
+			{
+				return false;
+			}
 		}
 
 		return true;
@@ -165,9 +197,19 @@ namespace Ogre
 			return false;
 		}
 
-		// Interpret the model; only the first, if there are more models, just ignore them
-		// TODO
-		
+		// Convert the assimp scene to a neutral Ogre xml format first and save it
+		// After conversion to xml, Ogre's MeshSerializer converts it to the actual mesh
+
+		XmlSerializer xmlSerializer;
+		String xmlFileName = data->mInImportPath + data->mInFileDialogBaseName + ".xml";
+		String meshFileName = data->mInImportPath + data->mInFileDialogBaseName + ".mesh";
+		if (!xmlSerializer.convertAssImpMeshToXml(scene, xmlFileName, data))
+		{
+			// The detailed error is set in the convertAssImpMeshToXml function
+			return false;
+		}
+		xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName);
+		data->mOutExportReference = meshFileName;
 		return true;
 	}
 

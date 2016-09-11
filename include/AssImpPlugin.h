@@ -74,6 +74,9 @@ namespace Ogre
 	
 		protected:
 			bool AssImpPlugin::parseScene(const aiScene* scene, HlmsEditorPluginData* data);
+
+		private:
+			MeshPtr mMeshPtr;
     };
 }
 
