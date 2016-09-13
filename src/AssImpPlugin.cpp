@@ -69,19 +69,9 @@ namespace Ogre
     {
     }
 	//---------------------------------------------------------------------
-	bool AssImpPlugin::isOpenFileDialogForImport(void) const
-	{
-		return true;
-	}
-	//---------------------------------------------------------------------
 	bool AssImpPlugin::isImport (void) const
 	{
 		return true;
-	}
-	//---------------------------------------------------------------------
-	bool AssImpPlugin::isOpenFileDialogForExport(void) const
-	{
-		return false;
 	}
 	//---------------------------------------------------------------------
 	bool AssImpPlugin::isExport (void) const
@@ -111,7 +101,12 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	unsigned int AssImpPlugin::getActionFlag(void)
 	{
-		return 0;
+		// 1. Open a file dialog for import
+		// 2. Load a mesh when import is completed
+		// 3. Don't display am ' OK'  message when the import was succesful
+		return PAF_PRE_IMPORT_OPEN_FILE_DIALOG |
+			PAF_POST_IMPORT_LOAD_MESH | 
+			PAF_POST_ACTION_SUPPRESS_OK_MESSAGE;
 	}
 
 	//---------------------------------------------------------------------
@@ -123,11 +118,6 @@ namespace Ogre
 	const String& AssImpPlugin::getExportMenuText (void) const
 	{
 		return gExportMenuText;
-	}
-	//---------------------------------------------------------------------
-	bool AssImpPlugin::isTexturesUsedByDatablocksForExport(void) const
-	{
-		return false;
 	}
 	//---------------------------------------------------------------------
 	bool AssImpPlugin::executeImport (HlmsEditorPluginData* data)
@@ -150,7 +140,7 @@ namespace Ogre
 
 			String meshFileName = data->mInImportPath + data->mInFileDialogBaseName + ".mesh";
 			xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName);
-			data->mOutExportReference = meshFileName;
+			data->mOutReference = meshFileName;
 			return true;
 		}
 		else
@@ -209,7 +199,7 @@ namespace Ogre
 			return false;
 		}
 		xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName);
-		data->mOutExportReference = meshFileName;
+		data->mOutReference = meshFileName;
 		return true;
 	}
 
