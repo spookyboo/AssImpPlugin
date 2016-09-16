@@ -88,10 +88,6 @@ namespace Ogre
 		if (!writeSkeletonLink("skeletonlink", root, scene, data))
 			return false;
 
-		// bone assignments
-		if (!writeBoneAssignments("boneassignments", root, scene, data))
-			return false;
-
 		//Lod
 		if (!writeLodInfo("levelofdetail", root, scene, data))
 			return false;
@@ -161,15 +157,6 @@ namespace Ogre
 
 	//---------------------------------------------------------------------
 	bool XmlSerializer::writeSkeletonLink (const String& skeletonlinkId,
-		TiXmlElement* root, 
-		const aiScene* scene,
-		HlmsEditorPluginData* data)
-	{
-		return true;
-	}
-
-	//---------------------------------------------------------------------
-	bool XmlSerializer::writeBoneAssignments (const String& boneAssignmentsId,
 		TiXmlElement* root, 
 		const aiScene* scene,
 		HlmsEditorPluginData* data)
@@ -249,6 +236,7 @@ namespace Ogre
 		TiXmlElement* facesNode;
 		TiXmlElement* geometryNode;
 		TiXmlElement* vertexBufferNode;
+		TiXmlElement* boneAssignmentsNode;
 
 		// Faces
 		if (subMesh->HasFaces())
@@ -299,6 +287,19 @@ namespace Ogre
 			if (!writeVertices("vertex", vertexBufferNode, subMesh, data))
 				return false;
 		}
+
+		// TODO
+		// The code to create the bones is not correct. Vertex indices and bone indices 
+		// do not match with xml output of the Ogre Mesh XML Serializer.
+		/*
+		if (subMesh->HasBones())
+		{
+			boneAssignmentsNode = new TiXmlElement("boneassignments");
+			subMeshNode->LinkEndChild(boneAssignmentsNode);
+			if (!writeVertexBoneAssignments("vertexboneassignment", boneAssignmentsNode, subMesh, data))
+				return false;
+		}
+		*/
 
 		return true;
 	}
@@ -351,7 +352,7 @@ namespace Ogre
 		// Add 'x' number of vertex elements, normalsm texture coords and tangents
 		while (vertexCount < subMesh->mNumVertices)
 		{
-			vertexNode = new TiXmlElement("vertex");
+			vertexNode = new TiXmlElement(vertexBufferId);
 			vertexBufferNode->LinkEndChild(vertexNode);
 
 			// Position
@@ -395,6 +396,68 @@ namespace Ogre
 			}
 
 			++vertexCount;
+		}
+
+		return true;
+	}
+
+	//---------------------------------------------------------------------
+	bool XmlSerializer::writeVertexBoneAssignments(const String& vertexBoneAssignmentsId,
+		TiXmlElement* boneAssignmentsNode,
+		const aiMesh* subMesh,
+		HlmsEditorPluginData* data)
+	{
+		aiBone* bone;
+		TiXmlElement* vertexBoneAssignmentNode;
+		float weight;
+		struct BoneAssignmentStruct
+		{
+			unsigned int vertexIndex;
+			unsigned int boneIndex;
+			float weight;
+		};
+
+		std::multimap<int, BoneAssignmentStruct> boneAssignmentMmap;
+		unsigned int totalNumWeights = 0;
+		BoneAssignmentStruct boneAssignmentStruct;
+		unsigned int boneCount = 0;
+		unsigned int weightCount = 0;
+		unsigned int substract = 0;
+		while (boneCount < subMesh->mNumBones)
+		{
+			bone = subMesh->mBones[boneCount];
+			weightCount = 0;
+			while (weightCount < bone->mNumWeights)
+			{
+				weight = bone->mWeights[weightCount].mWeight;
+				if (weight != 0.0f)
+				{
+				
+					boneAssignmentStruct.vertexIndex = bone->mWeights[weightCount].mVertexId - substract;
+					boneAssignmentStruct.boneIndex = boneCount;
+					boneAssignmentStruct.weight = weight;
+					boneAssignmentMmap.insert(std::make_pair(boneAssignmentStruct.vertexIndex, boneAssignmentStruct));
+				}
+				
+				++weightCount;
+			}
+			
+			++boneCount;
+		}
+
+		std::multimap<int, BoneAssignmentStruct>::const_iterator it = boneAssignmentMmap.begin();
+		std::multimap<int, BoneAssignmentStruct>::const_iterator itEnd = boneAssignmentMmap.end();
+		unsigned int vertexIndex = 0;
+		while (it != itEnd)
+		{
+			boneAssignmentStruct = it->second;
+			vertexBoneAssignmentNode = new TiXmlElement(vertexBoneAssignmentsId);
+			boneAssignmentsNode->LinkEndChild(vertexBoneAssignmentNode);
+			vertexBoneAssignmentNode->SetAttribute("vertexindex", StringConverter::toString(boneAssignmentStruct.vertexIndex));
+			vertexBoneAssignmentNode->SetAttribute("boneindex", StringConverter::toString(boneAssignmentStruct.boneIndex));
+			vertexBoneAssignmentNode->SetAttribute("weight", StringConverter::toString(boneAssignmentStruct.weight));
+			++it;
+			++vertexIndex;
 		}
 
 		return true;

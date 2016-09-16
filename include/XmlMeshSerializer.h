@@ -79,11 +79,6 @@ namespace Ogre
 			const aiScene* scene,
 			HlmsEditorPluginData* data);
 		
-		bool writeBoneAssignments(const String& boneAssignmentsId,
-			TiXmlElement* root,
-			const aiScene* scene,
-			HlmsEditorPluginData* data);
-
 		bool writeLodInfo(const String& lodInfoId,
 			TiXmlElement* root,
 			const aiScene* scene,
@@ -118,6 +113,11 @@ namespace Ogre
 		// level 4 elements
 		bool writeFaces(const String& faceId,
 			TiXmlElement* facesNode,
+			const aiMesh* subMesh,
+			HlmsEditorPluginData* data);
+
+		bool writeVertexBoneAssignments(const String& vertexBoneAssignmentsId,
+			TiXmlElement* boneAssignmentsNode,
 			const aiMesh* subMesh,
 			HlmsEditorPluginData* data);
 
