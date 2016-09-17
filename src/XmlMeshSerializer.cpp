@@ -467,7 +467,7 @@ namespace Ogre
 	bool XmlSerializer::convertXmlFileToMesh(const String& xmlFileName, const String& meshFileName)
 	{
 		// Desktop with normals
-		String runOgreMeshTool = MESHTOOL_CMD + xmlFileName + " " + meshFileName;
+		String runOgreMeshTool = MESHTOOL_CMD + "\"" + xmlFileName + "\" \"" + meshFileName + "\"";
 		LogManager::getSingleton().logMessage("XmlSerializer::convertXmlFileToMesh executing: " + runOgreMeshTool + "...");
 		system (runOgreMeshTool.c_str());
 		return true;
