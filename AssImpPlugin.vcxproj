@@ -110,7 +110,7 @@
       <PreprocessorDefinitions>TIXML_USE_STL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>..\..\Projects\ogre2.1\VCBuild\lib\Debug\OgreMain_d.lib;..\..\Projects\assimp\VCBuild\code\Debug\assimp-vc140-mt_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\..\Projects\ogre2.1\VCBuild\lib\Debug\OgreMain_d.lib;..\..\Projects\assimp\VCBuild\code\Debug\assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)_d.pdb</ProgramDatabaseFile>
       <ImportLibrary>$(OutDir)$(TargetName)_d.lib</ImportLibrary>
