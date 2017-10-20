@@ -106,7 +106,41 @@ namespace Ogre
 		// 3. Don't display am ' OK'  message when the import was succesful
 		return PAF_PRE_IMPORT_OPEN_FILE_DIALOG |
 			PAF_POST_IMPORT_LOAD_MESH | 
+			PAF_PRE_ACTION_SETTINGS_DIALOG |
 			PAF_POST_ACTION_SUPPRESS_OK_MESSAGE;
+	}
+
+	//---------------------------------------------------------------------
+	std::map<std::string, HlmsEditorPluginData::PLUGIN_PROPERTY> AssImpPlugin::getProperties(void)
+	{
+		// Set the default property values
+
+		// Generate tangents
+		HlmsEditorPluginData::PLUGIN_PROPERTY property;
+		property.propertyName = "generate_tangents";
+		property.labelName = "Generate tangents";
+		property.info = "";
+		property.type = HlmsEditorPluginData::BOOL;
+		property.boolValue = false;
+		mProperties[property.propertyName] = property;
+
+		// Generate edge lists
+		property.propertyName = "generate_edge_lists";
+		property.labelName = "Generate edge lists";
+		property.info = "This is needed for stencil shadows";
+		property.type = HlmsEditorPluginData::BOOL;
+		property.boolValue = false;
+		mProperties[property.propertyName] = property;
+
+		// Optimize for desktop
+		property.propertyName = "optimize_for_desktop";
+		property.labelName = "Optimize for desktop";
+		property.info = "";
+		property.type = HlmsEditorPluginData::BOOL;
+		property.boolValue = true;
+		mProperties[property.propertyName] = property;
+
+		return mProperties;
 	}
 
 	//---------------------------------------------------------------------
@@ -139,7 +173,7 @@ namespace Ogre
 				return false;
 
 			String meshFileName = data->mInImportPath + data->mInFileDialogBaseName + ".mesh";
-			xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName);
+			xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName, data);
 			data->mOutReference = meshFileName;
 			return true;
 		}
@@ -198,7 +232,7 @@ namespace Ogre
 			// The detailed error is set in the convertAssImpMeshToXml function
 			return false;
 		}
-		xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName);
+		xmlSerializer.convertXmlFileToMesh(xmlFileName, meshFileName, data);
 		data->mOutReference = meshFileName;
 		return true;
 	}

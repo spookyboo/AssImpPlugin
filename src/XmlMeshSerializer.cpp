@@ -464,12 +464,34 @@ namespace Ogre
 	}
 
 	//---------------------------------------------------------------------
-	bool XmlSerializer::convertXmlFileToMesh(const String& xmlFileName, const String& meshFileName)
+	bool XmlSerializer::convertXmlFileToMesh(const String& xmlFileName, 
+		const String& meshFileName,
+		HlmsEditorPluginData* data)
 	{
-		// Desktop with normals
-		String runOgreMeshTool = MESHTOOL_CMD + "\"" + xmlFileName + "\" \"" + meshFileName + "\"";
+		std::string meshToolCmd = "OgreMeshTool -v2 ";
+		std::string meshToolGenerateTangents = "";
+		std::string meshToolGenerateEdgeLists = "-e ";
+		std::string meshToolOptimize = "-O qs ";
+
+		// First get the property values (from the HLMS Editor)
+		std::map<std::string, Ogre::HlmsEditorPluginData::PLUGIN_PROPERTY> properties = data->mInPropertiesMap;
+		std::map<std::string, Ogre::HlmsEditorPluginData::PLUGIN_PROPERTY>::iterator it = properties.find("generate_edge_lists");
+		if (it != properties.end() && (it->second).boolValue)
+			meshToolGenerateEdgeLists = "";
+
+		it = properties.find("generate_tangents");
+		if (it != properties.end() && (it->second).boolValue)
+			meshToolGenerateTangents = "-t -ts 4 ";
+
+		it = properties.find("optimize_for_desktop");
+		if (it != properties.end() && (it->second).boolValue)
+			meshToolOptimize = "-O puqs ";
+
+		meshToolCmd += meshToolGenerateEdgeLists + meshToolGenerateTangents + meshToolOptimize;
+
+		std::string runOgreMeshTool = meshToolCmd + "\"" + xmlFileName + "\" \"" + meshFileName + "\"";
 		LogManager::getSingleton().logMessage("XmlSerializer::convertXmlFileToMesh executing: " + runOgreMeshTool + "...");
-		system (runOgreMeshTool.c_str());
+		system(runOgreMeshTool.c_str());
 		return true;
 	}
 }

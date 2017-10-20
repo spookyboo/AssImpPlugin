@@ -56,7 +56,9 @@ namespace Ogre
 
 		/* Interpret an xml file and use Ogre's build-in XMLMeshSerializer to convert to a V2 mesh
 		 */
-		bool convertXmlFileToMesh(const String& xmlFileName, const String& meshFileName);
+		bool convertXmlFileToMesh(const String& xmlFileName, 
+			const String& meshFileName,
+			HlmsEditorPluginData* data);
 
 		/* Read an Ogre mesh xml file and check to see wheter it is an Ogre mesh xml file
 		 */
